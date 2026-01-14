@@ -55,7 +55,7 @@ app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.create({ username, password });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.cookie('token', token, { httpOnly: true }).status(201).json({ success: true, user });
+    res.cookie('token', token, { httpOnly: true, sameSite: 'strict' }).status(201).json({ success: true, user });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }
@@ -69,7 +69,7 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.cookie('token', token, { httpOnly: true }).json({ success: true, user });
+    res.cookie('token', token, { httpOnly: true, sameSite: 'strict' }).json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
