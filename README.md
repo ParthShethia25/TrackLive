@@ -12,12 +12,13 @@ Track multiple devices in real-time on an interactive map. Perfect for delivery 
 ## ✨ Features
 
 - 🌍 **Real-time Location Tracking** - Track devices with live GPS updates
-- 🗺️ **Interactive Maps** - Powered by Leaflet.js with OpenStreetMap tiles
+- � **User Authentication** - Secure Login and Registration system
+- 📜 **Location History** - Persistent tracking with visual movement trails
+- �🗺️ **Interactive Maps** - Powered by Leaflet.js with OpenStreetMap tiles
 - 🔄 **Live Synchronization** - Instant updates using Socket.io
 - 📱 **Multi-Device Support** - Track unlimited devices simultaneously
 - 🎯 **Auto-Centering** - Map automatically centers on active locations
-- 🚀 **Fast & Lightweight** - Minimal dependencies, maximum performance
-- 🔌 **Auto-Cleanup** - Removes markers when devices disconnect
+- 🎨 **User Identity** - Unique colors and persistent usernames for each device
 
 ## 🛠️ Tech Stack
 
@@ -32,6 +33,7 @@ Track multiple devices in real-time on an interactive map. Perfect for delivery 
 Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (v14.0.0 or higher)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
+- [MongoDB](https://www.mongodb.com/try/download/community) (running locally on port 27017)
 
 ## 🚀 Installation
 
@@ -46,7 +48,15 @@ cd realtime-tracker
 npm install
 ```
 
-3. **Start the server**
+3. **Configure Environment**
+Create a `.env` file in the root directory:
+```env
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/tracklive
+JWT_SECRET=your_secure_randomfrom_secret_here
+```
+
+4. **Start the server**
 ```bash
 node app.js
 ```

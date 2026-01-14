@@ -5,33 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realtime Device Tracker</title>
   
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
     crossorigin="" />
   
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <!-- Map Container -->
+  
+  <% if (user) { %>
+    <div class="auth-header">
+      <span>Welcome, <b><%= user.username %></b></span>
+      <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+  <% } else { %>
+    <div id="login-overlay" class="modal-overlay">
+      <div class="modal">
+        <h2 id="modal-title">Login</h2>
+        <form id="auth-form">
+          <div class="form-group">
+            <input type="text" id="username" placeholder="Username" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="btn" id="submit-btn">Login</button>
+        </form>
+        <div class="switch-form">
+          <span id="switch-text">Don't have an account? </span>
+          <a id="switch-btn">Register</a>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
   <div id="map"></div>
   
-  <!-- Info Panel (Optional) -->
   <div class="info-panel">
     <h3>🚗 Realtime Device Tracker</h3>
     <p>Connected Devices: <span id="device-count">0</span></p>
   </div>
   
-  <!-- Leaflet JavaScript -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
     crossorigin=""></script>
   
-  <!-- Socket.io JavaScript -->
   <script src="/socket.io/socket.io.js"></script>
   
-  <!-- Custom JavaScript -->
+  <script>
+    const currentUser = <%- JSON.stringify(user || null) %>;
+  </script>
   <script src="/js/script.js"></script>
 </body>
 </html>
