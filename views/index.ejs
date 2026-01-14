@@ -1,60 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realtime Device Tracker</title>
-  
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-    crossorigin="" />
-  
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-  
+
   <% if (user) { %>
     <div class="auth-header">
-      <span>Welcome, <b><%= user.username %></b></span>
+      <span>Welcome, <b>
+          <%= user.username %>
+        </b></span>
       <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
-  <% } else { %>
-    <div id="login-overlay" class="modal-overlay">
-      <div class="modal">
-        <h2 id="modal-title">Login</h2>
-        <form id="auth-form">
-          <div class="form-group">
-            <input type="text" id="username" placeholder="Username" required>
+    <% } else { %>
+      <div id="login-overlay" class="modal-overlay">
+        <div class="modal">
+          <h2 id="modal-title">Login</h2>
+          <form id="auth-form">
+            <div class="form-group">
+              <input type="text" id="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+              <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="form-group" id="role-group" style="display: none;">
+              <select id="role" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                <option value="driver">Driver</option>
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button type="submit" class="btn" id="submit-btn">Login</button>
+          </form>
+          <div class="switch-form">
+            <span id="switch-text">Don't have an account? </span>
+            <a id="switch-btn">Register</a>
           </div>
-          <div class="form-group">
-            <input type="password" id="password" placeholder="Password" required>
-          </div>
-          <button type="submit" class="btn" id="submit-btn">Login</button>
-        </form>
-        <div class="switch-form">
-          <span id="switch-text">Don't have an account? </span>
-          <a id="switch-btn">Register</a>
         </div>
       </div>
-    </div>
-  <% } %>
+      <% } %>
 
-  <div id="map"></div>
-  
-  <div class="info-panel">
-    <h3>🚗 Realtime Device Tracker</h3>
-    <p>Connected Devices: <span id="device-count">0</span></p>
-  </div>
-  
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-    crossorigin=""></script>
-  
-  <script src="/socket.io/socket.io.js"></script>
-  
-  <script>
-    const currentUser = <%- JSON.stringify(user || null) %>;
-  </script>
-  <script src="/js/script.js"></script>
+        <div id="map"></div>
+
+        <div class="info-panel">
+          <h3>🚗 Realtime Device Tracker</h3>
+          <p>Connected Devices: <span id="device-count">0</span></p>
+
+          <div id="admin-panel" style="display: none; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;">
+            <h4>Admin Controls</h4>
+            <button id="set-hq-btn" class="action-btn">Set HQ Location</button>
+            <p id="hq-status" style="font-size: 12px; color: #888; margin-top: 5px;">Click map to set HQ</p>
+
+            <div id="delivery-assignment" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+              <h4 style="font-size: 13px; margin-bottom: 8px;">Assign Delivery</h4>
+              <select id="driver-select"
+                style="width: 100%; padding: 6px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                <option value="">Select Driver</option>
+              </select>
+              <select id="customer-select"
+                style="width: 100%; padding: 6px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                <option value="">Select Customer</option>
+              </select>
+              <button id="assign-delivery-btn" class="action-btn" style="width: 100%; font-size: 12px;">Assign
+                Delivery</button>
+            </div>
+
+            <div id="user-list" style="margin-top: 10px; max-height: 200px; overflow-y: auto;">
+              <!-- User items will go here -->
+            </div>
+          </div>
+
+          <div id="proximity-alert"
+            style="display: none; background: #ffeaa7; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 12px;">
+            ⚠️ <span id="alert-msg">Target approaching!</span>
+          </div>
+
+          <div id="eta-display"
+            style="display: none; background: #74b9ff; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 12px; color: white;">
+            🚚 <span id="eta-msg">Delivery ETA: calculating...</span>
+          </div>
+
+          <div id="users-list" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+            <h4 style="font-size: 14px; margin-bottom: 8px;">Connected Users</h4>
+            <div id="users-container" style="max-height: 150px; overflow-y: auto;">
+              <!-- User items will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+        <script src="/socket.io/socket.io.js"></script>
+
+        <script>
+          const userPayload = "<%= user ? Buffer.from(JSON.stringify({ _id: user._id, username: user.username, role: user.role })).toString('base64') : '' %>";
+          const currentUser = userPayload ? JSON.parse(atob(userPayload)) : null;
+        </script>
+        <script src="/js/script.js"></script>
 </body>
+
 </html>
